@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
     // If all reviews completed, mark topic as completed
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (completedCount && completedCount >= (topic as any).scheduled_reviews.length) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error: updateError } = await (supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .from('topics') as any)
         .update({ completed: true, updated_at: new Date().toISOString() })
         .eq('id', topicId)
