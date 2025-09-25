@@ -66,8 +66,8 @@ export async function PATCH(
       .eq('user_id', user.id)
       .single()
 
-    if (settings && settings.last_used_subject === oldSubject) {
-      const updatedRecentSubjects = (settings.recent_subjects || []).map(
+    if (settings && (settings as any).last_used_subject === oldSubject) {
+      const updatedRecentSubjects = ((settings as any).recent_subjects || []).map(
         (s: string) => s === oldSubject ? newSubject : s
       )
 
@@ -142,14 +142,14 @@ export async function DELETE(
       .single()
 
     if (settings) {
-      const updatedRecentSubjects = (settings.recent_subjects || []).filter(
+      const updatedRecentSubjects = ((settings as any).recent_subjects || []).filter(
         (s: string) => s !== subjectToDelete
       )
 
       await (supabase
         .from('settings') as any)
         .update({
-          last_used_subject: settings.last_used_subject === subjectToDelete ? null : settings.last_used_subject,
+          last_used_subject: (settings as any).last_used_subject === subjectToDelete ? null : (settings as any).last_used_subject,
           recent_subjects: updatedRecentSubjects,
           updated_at: new Date().toISOString()
         })
