@@ -29,6 +29,33 @@ export default function AddTopicModal({ isOpen, onClose, onAddTopic, existingSub
 
   const subjectInputRef = useRef<HTMLInputElement>(null);
 
+  const handleSubmit = useCallback(() => {
+    if (!subject.trim() || !topic.trim()) return;
+
+    const newTopic = createTopic(
+      subject.trim(),
+      topic.trim(),
+      selectedTags,
+      source,
+      existingSubjects
+    );
+
+    onAddTopic(newTopic);
+
+    // Save settings
+    saveSettings({
+      lastUsedSubject: subject.trim(),
+    });
+
+    // Reset form
+    setSubject('');
+    setTopic('');
+    setSelectedTags([]);
+    setSource('aula');
+
+    onClose();
+  }, [subject, topic, selectedTags, source, existingSubjects, onAddTopic, onClose]);
+
   useEffect(() => {
     if (isOpen) {
       const settings = loadSettings();
@@ -60,33 +87,6 @@ export default function AddTopicModal({ isOpen, onClose, onAddTopic, existingSub
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose, handleSubmit]);
-
-  const handleSubmit = useCallback(() => {
-    if (!subject.trim() || !topic.trim()) return;
-
-    const newTopic = createTopic(
-      subject.trim(),
-      topic.trim(),
-      selectedTags,
-      source,
-      existingSubjects
-    );
-
-    onAddTopic(newTopic);
-
-    // Save settings
-    saveSettings({
-      lastUsedSubject: subject.trim(),
-    });
-
-    // Reset form
-    setSubject('');
-    setTopic('');
-    setSelectedTags([]);
-    setSource('aula');
-
-    onClose();
-  }, [subject, topic, selectedTags, source, existingSubjects, onAddTopic, onClose]);
 
   const handleTagToggle = (tag: string) => {
     setSelectedTags(prev =>

@@ -65,8 +65,8 @@ export async function PATCH(
     const updates = { ...body, updated_at: new Date().toISOString() }
     const resolvedParams = await params
 
-    const { data: topic, error } = await supabase
-      .from('topics')
+    const { data: topic, error } = await (supabase
+      .from('topics') as any)
       .update(updates)
       .eq('id', resolvedParams.id)
       .eq('user_id', user.id)

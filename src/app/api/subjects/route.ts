@@ -57,8 +57,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { subject, color } = body
 
-    const { data, error } = await supabase
-      .from('subjects')
+    const { data, error } = await (supabase
+      .from('subjects') as any)
       .insert({
         user_id: user.id,
         subject,

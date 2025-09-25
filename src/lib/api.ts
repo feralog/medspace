@@ -7,7 +7,7 @@ class APIClient {
 
   constructor() {
     this.baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (typeof window !== 'undefined' ? window.location.origin : '')
+      ? (typeof window !== 'undefined' ? window.location.origin : 'https://medspace-ashen.vercel.app')
       : 'http://localhost:3001'
 
     // This will be set by the auth provider

@@ -40,16 +40,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform to match frontend Topic type
-    const transformedTopics: Topic[] = topics.map(topic => ({
+    const transformedTopics: Topic[] = (topics as any).map((topic: any) => ({
       id: topic.id,
-      title: topic.title,
+      topic: topic.title, // Map title to topic field
       subject: topic.subject,
       color: topic.color,
-      description: topic.description || '',
       tags: topic.tags || [],
+      source: 'aula' as const, // Default source for existing topics
       createdAt: new Date(topic.created_at),
-      scheduledReviews: topic.scheduled_reviews.map(date => new Date(date)),
-      reviews: (topic.reviews || []).map(review => ({
+      scheduledReviews: topic.scheduled_reviews.map((date: string) => new Date(date)),
+      reviews: (topic.reviews || []).map((review: any) => ({
         date: new Date(review.date),
         completed: review.completed,
         reviewNumber: review.review_number
@@ -95,8 +95,8 @@ export async function POST(request: NextRequest) {
     })
 
     // Insert topic
-    const { data: topic, error: topicError } = await supabase
-      .from('topics')
+    const { data: topic, error: topicError } = await (supabase
+      .from('topics') as any)
       .insert({
         user_id: user.id,
         title,
@@ -114,8 +114,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create or update subject
-    const { error: subjectError } = await supabase
-      .from('subjects')
+    const { error: subjectError } = await (supabase
+      .from('subjects') as any)
       .upsert({
         user_id: user.id,
         subject,
@@ -131,16 +131,16 @@ export async function POST(request: NextRequest) {
 
     // Transform to match frontend Topic type
     const transformedTopic: Topic = {
-      id: topic.id,
-      title: topic.title,
-      subject: topic.subject,
-      color: topic.color,
-      description: topic.description || '',
-      tags: topic.tags || [],
-      createdAt: new Date(topic.created_at),
-      scheduledReviews: topic.scheduled_reviews.map(date => new Date(date)),
+      id: (topic as any).id,
+      topic: (topic as any).title, // Map title to topic field
+      subject: (topic as any).subject,
+      color: (topic as any).color,
+      tags: (topic as any).tags || [],
+      source: 'aula' as const, // Default source for new topics
+      createdAt: new Date((topic as any).created_at),
+      scheduledReviews: (topic as any).scheduled_reviews.map((date: string) => new Date(date)),
       reviews: [],
-      completed: topic.completed
+      completed: (topic as any).completed
     }
 
     return NextResponse.json(transformedTopic, { status: 201 })
