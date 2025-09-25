@@ -83,10 +83,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+    console.log('Received topic creation request:', JSON.stringify(body, null, 2))
+
     const { topic, title, subject, color, description, tags, source } = body
 
     // Use 'topic' field if provided, fallback to 'title' for backwards compatibility
     const topicTitle = topic || title
+
+    if (!topicTitle) {
+      console.error('No topic title provided! topic:', topic, 'title:', title)
+      return NextResponse.json({ error: 'Topic title is required' }, { status: 400 })
+    }
 
     // Calculate scheduled reviews (spaced repetition intervals)
     const now = new Date()
@@ -114,6 +121,17 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (topicError) {
+      console.error('Database error creating topic:', topicError)
+      console.error('Topic data being inserted:', {
+        user_id: user.id,
+        title: topicTitle,
+        subject,
+        color,
+        description: description || null,
+        tags: tags || [],
+        source: source || 'aula',
+        scheduled_reviews: scheduledReviews
+      })
       return NextResponse.json({ error: topicError.message }, { status: 500 })
     }
 
