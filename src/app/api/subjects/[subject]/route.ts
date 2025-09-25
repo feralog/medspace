@@ -4,7 +4,7 @@ import { createServiceSupabase } from '@/lib/supabase'
 // PATCH /api/subjects/[subject] - Update subject
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { subject: string } }
+  { params }: { params: Promise<{ subject: string }> }
 ) {
   try {
     const supabase = createServiceSupabase()
@@ -24,7 +24,8 @@ export async function PATCH(
 
     const body = await request.json()
     const { newSubject, newColor } = body
-    const oldSubject = decodeURIComponent(params.subject)
+    const resolvedParams = await params
+    const oldSubject = decodeURIComponent(resolvedParams.subject)
 
     // Start a transaction by updating subjects first
     const { data: updatedSubject, error: subjectError } = await supabase
@@ -90,7 +91,7 @@ export async function PATCH(
 // DELETE /api/subjects/[subject] - Delete subject and all its topics
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { subject: string } }
+  { params }: { params: Promise<{ subject: string }> }
 ) {
   try {
     const supabase = createServiceSupabase()
@@ -108,7 +109,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
-    const subjectToDelete = decodeURIComponent(params.subject)
+    const resolvedParams = await params
+    const subjectToDelete = decodeURIComponent(resolvedParams.subject)
 
     // Delete all topics from this subject (reviews will cascade delete)
     const { error: topicsError } = await supabase

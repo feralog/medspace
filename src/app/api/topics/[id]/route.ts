@@ -4,7 +4,7 @@ import { createServiceSupabase } from '@/lib/supabase'
 // DELETE /api/topics/[id] - Delete topic
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createServiceSupabase()
@@ -22,10 +22,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
+    const resolvedParams = await params
     const { error } = await supabase
       .from('topics')
       .delete()
-      .eq('id', params.id)
+      .eq('id', resolvedParams.id)
       .eq('user_id', user.id)
 
     if (error) {
@@ -42,7 +43,7 @@ export async function DELETE(
 // PATCH /api/topics/[id] - Update topic (mark as completed, etc.)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createServiceSupabase()
@@ -62,11 +63,12 @@ export async function PATCH(
 
     const body = await request.json()
     const updates = { ...body, updated_at: new Date().toISOString() }
+    const resolvedParams = await params
 
     const { data: topic, error } = await supabase
       .from('topics')
       .update(updates)
-      .eq('id', params.id)
+      .eq('id', resolvedParams.id)
       .eq('user_id', user.id)
       .select()
       .single()
