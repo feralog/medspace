@@ -83,7 +83,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, subject, color, description, tags, source } = body
+    const { topic, title, subject, color, description, tags, source } = body
+
+    // Use 'topic' field if provided, fallback to 'title' for backwards compatibility
+    const topicTitle = topic || title
 
     // Calculate scheduled reviews (spaced repetition intervals)
     const now = new Date()
@@ -99,7 +102,7 @@ export async function POST(request: NextRequest) {
       .from('topics') as any)
       .insert({
         user_id: user.id,
-        title,
+        title: topicTitle,
         subject,
         color,
         description: description || null,
