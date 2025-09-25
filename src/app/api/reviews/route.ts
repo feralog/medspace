@@ -23,17 +23,16 @@ export async function POST(request: NextRequest) {
     const { topicId, reviewNumber } = body
 
     // Insert review
-    const reviewData = {
-      topic_id: topicId as string,
-      user_id: user.id,
-      review_number: reviewNumber as number,
-      date: new Date().toISOString(),
-      completed: true
-    };
-
-    const { data: review, error: reviewError } = await supabase
-      .from('reviews')
-      .insert(reviewData)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: review, error: reviewError } = await (supabase
+      .from('reviews') as any)
+      .insert({
+        topic_id: topicId as string,
+        user_id: user.id,
+        review_number: reviewNumber as number,
+        date: new Date().toISOString(),
+        completed: true
+      })
       .select()
       .single()
 
