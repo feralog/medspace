@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       subject: topic.subject,
       color: topic.color,
       tags: topic.tags || [],
-      source: 'aula' as const, // Default source for existing topics
+      source: topic.source || 'aula', // Use stored source or default to aula
       createdAt: new Date(topic.created_at),
       scheduledReviews: topic.scheduled_reviews.map((date: string) => new Date(date)),
       reviews: (topic.reviews || []).map((review: any) => ({
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, subject, color, description, tags } = body
+    const { title, subject, color, description, tags, source } = body
 
     // Calculate scheduled reviews (spaced repetition intervals)
     const now = new Date()
@@ -104,6 +104,7 @@ export async function POST(request: NextRequest) {
         color,
         description: description || null,
         tags: tags || [],
+        source: source || 'aula',
         scheduled_reviews: scheduledReviews
       })
       .select()
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest) {
       subject: (topic as any).subject,
       color: (topic as any).color,
       tags: (topic as any).tags || [],
-      source: 'aula' as const, // Default source for new topics
+      source: (topic as any).source || 'aula',
       createdAt: new Date((topic as any).created_at),
       scheduledReviews: (topic as any).scheduled_reviews.map((date: string) => new Date(date)),
       reviews: [],

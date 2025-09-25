@@ -28,6 +28,7 @@ CREATE TABLE public.topics (
   color TEXT NOT NULL,
   description TEXT,
   tags TEXT[] DEFAULT '{}',
+  source TEXT DEFAULT 'aula' CHECK (source IN ('aula', 'livro', 'video', 'outro')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   scheduled_reviews TIMESTAMP WITH TIME ZONE[] DEFAULT '{}',
   completed BOOLEAN DEFAULT FALSE,
