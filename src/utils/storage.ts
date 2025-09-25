@@ -35,6 +35,7 @@ export async function loadTopics(): Promise<Topic[]> {
 
 // Local storage functions for offline fallback
 function saveTopicsToLocal(topics: Topic[]): void {
+  if (typeof window === 'undefined') return;
   try {
     const serializedTopics = topics.map(topic => ({
       ...topic,
@@ -52,6 +53,7 @@ function saveTopicsToLocal(topics: Topic[]): void {
 }
 
 function loadTopicsFromLocal(): Topic[] {
+  if (typeof window === 'undefined') return [];
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.TOPICS);
     if (!stored) return [];
@@ -100,13 +102,14 @@ export async function loadSubjects(): Promise<StoredSubject[]> {
 // Local storage functions for offline fallback
 function saveSubjectsToLocal(subjects: StoredSubject[]): void {
   try {
-    localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(subjects));
+    if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(subjects));
   } catch (error) {
     console.error('Failed to save subjects to localStorage:', error);
   }
 }
 
 function loadSubjectsFromLocal(): StoredSubject[] {
+  if (typeof window === 'undefined') return [];
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.SUBJECTS);
     if (!stored) return [];
@@ -127,13 +130,20 @@ export function saveSettings(settings: Partial<AppSettings>): void {
   try {
     const current = loadSettings();
     const updated = { ...current, ...settings };
-    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
+    if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
   } catch (error) {
     console.error('Failed to save settings:', error);
   }
 }
 
 export function loadSettings(): AppSettings {
+  if (typeof window === 'undefined') {
+    return {
+      lastUsedSubject: '',
+      recentSubjects: [],
+      commonTags: ['importante', 'prova', 'dificil', 'revisar'],
+    };
+  }
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     if (!stored) {
@@ -448,9 +458,9 @@ export async function deleteSubject(
 }
 
 // Export data
-export function exportData(): string {
-  const topics = loadTopics();
-  const subjects = loadSubjects();
+export async function exportData(): Promise<string> {
+  const topics = await loadTopics();
+  const subjects = await loadSubjects();
   const settings = loadSettings();
 
   return JSON.stringify({
@@ -463,6 +473,7 @@ export function exportData(): string {
 
 // Import data
 export function importData(jsonData: string): boolean {
+  if (typeof window === 'undefined') return false;
   try {
     const data = JSON.parse(jsonData);
 

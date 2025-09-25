@@ -7,13 +7,16 @@ class APIClient {
 
   constructor() {
     this.baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : window.location.origin
+      ? process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (typeof window !== 'undefined' ? window.location.origin : '')
       : 'http://localhost:3001'
 
     // This will be set by the auth provider
     this.getAuthToken = async () => {
       // Will be implemented when we add auth
-      return localStorage.getItem('supabase_auth_token')
+      if (typeof window !== 'undefined') {
+        return localStorage.getItem('supabase_auth_token')
+      }
+      return null
     }
   }
 
