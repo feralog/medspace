@@ -26,12 +26,12 @@ export async function POST(request: NextRequest) {
     const { data: review, error: reviewError } = await supabase
       .from('reviews')
       .insert({
-        topic_id: topicId,
+        topic_id: topicId as string,
         user_id: user.id,
-        review_number: reviewNumber,
+        review_number: reviewNumber as number,
         date: new Date().toISOString(),
         completed: true
-      })
+      } as any)
       .select()
       .single()
 
