@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Insert topic
-    const { data: topic, error: topicError } = await (supabase
+    const { data: createdTopic, error: topicError } = await (supabase
       .from('topics') as any)
       .insert({
         user_id: user.id,
@@ -153,16 +153,16 @@ export async function POST(request: NextRequest) {
 
     // Transform to match frontend Topic type
     const transformedTopic: Topic = {
-      id: (topic as any).id,
-      topic: (topic as any).title, // Map title to topic field
-      subject: (topic as any).subject,
-      color: (topic as any).color,
-      tags: (topic as any).tags || [],
-      source: (topic as any).source || 'aula',
-      createdAt: new Date((topic as any).created_at),
-      scheduledReviews: (topic as any).scheduled_reviews.map((date: string) => new Date(date)),
+      id: (createdTopic as any).id,
+      topic: (createdTopic as any).title, // Map title to topic field
+      subject: (createdTopic as any).subject,
+      color: (createdTopic as any).color,
+      tags: (createdTopic as any).tags || [],
+      source: (createdTopic as any).source || 'aula',
+      createdAt: new Date((createdTopic as any).created_at),
+      scheduledReviews: (createdTopic as any).scheduled_reviews.map((date: string) => new Date(date)),
       reviews: [],
-      completed: (topic as any).completed
+      completed: (createdTopic as any).completed
     }
 
     return NextResponse.json(transformedTopic, { status: 201 })
