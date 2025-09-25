@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
     const { topicId, reviewNumber } = body
 
     // Insert review
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: review, error: reviewError } = await (supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .from('reviews') as any)
       .insert({
         topic_id: topicId as string,
