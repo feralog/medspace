@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Topic } from '@/types';
 import { getWeekDates, getMonthDates, groupDatesByWeek, getTopicsForDate, formatDate, isOverdue } from '@/utils/spaced-repetition';
 
@@ -16,9 +17,112 @@ interface TopicItemProps {
   reviewIndex: number;
   onComplete: (topicId: string, reviewIndex: number) => void;
   onDelete?: (topicId: string) => void;
+  onShowDetails: (topic: Topic, reviewIndex: number) => void;
 }
 
-function TopicItem({ topic, reviewIndex, onComplete, onDelete }: TopicItemProps) {
+interface TopicDetailsModalProps {
+  topic: Topic | null;
+  reviewIndex: number;
+  isOpen: boolean;
+  onClose: () => void;
+  onComplete: (topicId: string, reviewIndex: number) => void;
+  onDelete?: (topicId: string) => void;
+}
+
+function TopicDetailsModal({ topic, reviewIndex, isOpen, onClose, onComplete, onDelete }: TopicDetailsModalProps) {
+  if (!isOpen || !topic) return null;
+
+  const isOverdueItem = isOverdue(topic);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-4 h-4 rounded-full flex-shrink-0"
+                style={{ backgroundColor: topic.color }}
+              />
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">{topic.subject}</h3>
+                <p className="text-sm text-gray-600">{reviewIndex + 1}ª revisão</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Topic title - full text */}
+          <div className="mb-4">
+            <h4 className="text-base font-medium text-gray-900 mb-2">Tópico:</h4>
+            <p className="text-gray-800 leading-relaxed">{topic.topic}</p>
+          </div>
+
+          {/* Tags */}
+          {topic.tags.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Tags:</h4>
+              <div className="flex flex-wrap gap-2">
+                {topic.tags.map((tag) => (
+                  <span key={tag} className="inline-block text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Source */}
+          <div className="mb-6">
+            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded capitalize">
+              {topic.source}
+            </span>
+          </div>
+
+          {/* Overdue warning */}
+          {isOverdueItem && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
+              <p className="text-sm text-red-700">⚠ Esta revisão está atrasada</p>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                onComplete(topic.id, reviewIndex);
+                onClose();
+              }}
+              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              ✓ Concluir Revisão
+            </button>
+            {onDelete && (
+              <button
+                onClick={() => {
+                  if (confirm(`Deletar "${topic.topic}"?`)) {
+                    onDelete(topic.id);
+                    onClose();
+                  }
+                }}
+                className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors"
+              >
+                Deletar
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TopicItem({ topic, reviewIndex, onComplete, onDelete, onShowDetails }: TopicItemProps) {
   const isOverdueItem = isOverdue(topic);
 
   return (
@@ -35,8 +139,12 @@ function TopicItem({ topic, reviewIndex, onComplete, onDelete }: TopicItemProps)
           style={{ backgroundColor: topic.color }}
         />
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
+        {/* Content - clickable */}
+        <div
+          className="flex-1 min-w-0 cursor-pointer"
+          onClick={() => onShowDetails(topic, reviewIndex)}
+          title="Clique para ver detalhes completos"
+        >
           {/* Subject */}
           <div className="flex items-center gap-1 mb-1">
             <span className="text-xs font-semibold text-gray-800 truncate">
@@ -52,8 +160,8 @@ function TopicItem({ topic, reviewIndex, onComplete, onDelete }: TopicItemProps)
             )}
           </div>
 
-          {/* Topic title - wrap text to show full content */}
-          <p className="text-xs text-gray-900 font-medium leading-tight break-words" title={topic.topic}>
+          {/* Topic title - still truncated but clickable for details */}
+          <p className="text-xs text-gray-900 font-medium truncate">
             {topic.topic}
           </p>
 
@@ -70,7 +178,8 @@ function TopicItem({ topic, reviewIndex, onComplete, onDelete }: TopicItemProps)
           {/* Delete button */}
           {onDelete && (
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (confirm(`Deletar "${topic.topic}"?`)) {
                   onDelete(topic.id);
                 }
@@ -86,8 +195,12 @@ function TopicItem({ topic, reviewIndex, onComplete, onDelete }: TopicItemProps)
 
           {/* Checkbox */}
           <button
-            onClick={() => onComplete(topic.id, reviewIndex)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onComplete(topic.id, reviewIndex);
+            }}
             className="w-4 h-4 border border-blue-300 rounded hover:bg-blue-50 hover:border-blue-500 transition-colors flex items-center justify-center"
+            title="Concluir revisão"
           >
             <svg
               className="w-3 h-3 text-blue-500 opacity-0 hover:opacity-100 transition-opacity"
@@ -108,12 +221,14 @@ function DayColumn({
   date,
   topics,
   onCompleteReview,
-  onDeleteTopic
+  onDeleteTopic,
+  onShowDetails
 }: {
   date: Date;
   topics: Topic[];
   onCompleteReview: (topicId: string, reviewIndex: number) => void;
   onDeleteTopic?: (topicId: string) => void;
+  onShowDetails: (topic: Topic, reviewIndex: number) => void;
 }) {
   const dayTopics = getTopicsForDate(topics, date);
   const isToday = new Date().toDateString() === date.toDateString();
@@ -164,6 +279,7 @@ function DayColumn({
                 reviewIndex={reviewIndex}
                 onComplete={onCompleteReview}
                 onDelete={onDeleteTopic}
+                onShowDetails={onShowDetails}
               />
             );
           })
@@ -174,11 +290,27 @@ function DayColumn({
 }
 
 export default function WeeklyCalendar({ topics, onCompleteReview, onDeleteTopic, currentWeekStart, viewMode = 'month' }: WeeklyCalendarProps) {
+  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [selectedReviewIndex, setSelectedReviewIndex] = useState<number>(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const dates = viewMode === 'week' ? getWeekDates(currentWeekStart) : getMonthDates(currentWeekStart);
   const weeks = viewMode === 'month' ? groupDatesByWeek(dates) : [dates];
 
+  const handleShowDetails = (topic: Topic, reviewIndex: number) => {
+    setSelectedTopic(topic);
+    setSelectedReviewIndex(reviewIndex);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedTopic(null);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       {viewMode === 'month' ? (
         // Month View - Grid of weeks
         <div className="divide-y divide-gray-200">
@@ -191,6 +323,7 @@ export default function WeeklyCalendar({ topics, onCompleteReview, onDeleteTopic
                     topics={topics}
                     onCompleteReview={onCompleteReview}
                     onDeleteTopic={onDeleteTopic}
+                    onShowDetails={handleShowDetails}
                   />
                 </div>
               ))}
@@ -209,6 +342,7 @@ export default function WeeklyCalendar({ topics, onCompleteReview, onDeleteTopic
                   topics={topics}
                   onCompleteReview={onCompleteReview}
                   onDeleteTopic={onDeleteTopic}
+                  onShowDetails={handleShowDetails}
                 />
               </div>
             ))}
@@ -223,11 +357,23 @@ export default function WeeklyCalendar({ topics, onCompleteReview, onDeleteTopic
                 topics={topics}
                 onCompleteReview={onCompleteReview}
                 onDeleteTopic={onDeleteTopic}
+                onShowDetails={handleShowDetails}
               />
             ))}
           </div>
         </>
       )}
-    </div>
+      </div>
+
+      {/* Topic Details Modal */}
+      <TopicDetailsModal
+        topic={selectedTopic}
+        reviewIndex={selectedReviewIndex}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onComplete={onCompleteReview}
+        onDelete={onDeleteTopic}
+      />
+    </>
   );
 }
