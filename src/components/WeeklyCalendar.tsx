@@ -312,43 +312,75 @@ export default function WeeklyCalendar({ topics, onCompleteReview, onDeleteTopic
     <>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       {viewMode === 'month' ? (
-        // Month View - Grid of weeks
-        <div className="divide-y divide-gray-200">
-          {weeks.map((week, weekIndex) => (
-            <div key={weekIndex} className="grid grid-cols-7 divide-x divide-gray-200">
-              {week.map((date) => (
-                <div key={date.toISOString()} className="min-h-[120px]">
-                  <DayColumn
-                    date={date}
-                    topics={topics}
-                    onCompleteReview={onCompleteReview}
-                    onDeleteTopic={onDeleteTopic}
-                    onShowDetails={handleShowDetails}
-                  />
+        // Month View - Grid of weeks with mobile scroll
+        <>
+          {/* Mobile Month View - Horizontal scroll */}
+          <div className="lg:hidden">
+            <div className="overflow-x-auto">
+              <div className="divide-y divide-gray-200">
+                {weeks.map((week, weekIndex) => (
+                  <div key={weekIndex} className="flex divide-x divide-gray-200 min-w-[700px]">
+                    {week.map((date) => (
+                      <div key={date.toISOString()} className="min-h-[120px] w-[100px] flex-shrink-0">
+                        <DayColumn
+                          date={date}
+                          topics={topics}
+                          onCompleteReview={onCompleteReview}
+                          onDeleteTopic={onDeleteTopic}
+                          onShowDetails={handleShowDetails}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Month View - Grid layout */}
+          <div className="hidden lg:block">
+            <div className="divide-y divide-gray-200">
+              {weeks.map((week, weekIndex) => (
+                <div key={weekIndex} className="grid grid-cols-7 divide-x divide-gray-200">
+                  {week.map((date) => (
+                    <div key={date.toISOString()} className="min-h-[120px]">
+                      <DayColumn
+                        date={date}
+                        topics={topics}
+                        onCompleteReview={onCompleteReview}
+                        onDeleteTopic={onDeleteTopic}
+                        onShowDetails={handleShowDetails}
+                      />
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
-          ))}
-        </div>
+          </div>
+        </>
       ) : (
-        // Week View - Original layout
+        // Week View - Original layout with mobile scroll
         <>
-          {/* Mobile View */}
+          {/* Mobile Week View - Horizontal scroll */}
           <div className="lg:hidden">
-            {dates.map((date) => (
-              <div key={date.toISOString()}>
-                <DayColumn
-                  date={date}
-                  topics={topics}
-                  onCompleteReview={onCompleteReview}
-                  onDeleteTopic={onDeleteTopic}
-                  onShowDetails={handleShowDetails}
-                />
+            <div className="overflow-x-auto">
+              <div className="flex divide-x divide-gray-200 min-w-[700px]">
+                {dates.map((date) => (
+                  <div key={date.toISOString()} className="w-[100px] flex-shrink-0">
+                    <DayColumn
+                      date={date}
+                      topics={topics}
+                      onCompleteReview={onCompleteReview}
+                      onDeleteTopic={onDeleteTopic}
+                      onShowDetails={handleShowDetails}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
 
-          {/* Desktop View */}
+          {/* Desktop Week View - Flex layout */}
           <div className="hidden lg:flex divide-x divide-gray-200">
             {dates.map((date) => (
               <DayColumn
