@@ -28,8 +28,8 @@ export async function PATCH(
     const oldSubject = decodeURIComponent(resolvedParams.subject)
 
     // Start a transaction by updating subjects first
-    const { data: updatedSubject, error: subjectError } = await supabase
-      .from('subjects')
+    const { data: updatedSubject, error: subjectError } = await (supabase
+      .from('subjects') as any)
       .update({
         subject: newSubject,
         color: newColor,
@@ -45,8 +45,8 @@ export async function PATCH(
     }
 
     // Update all topics with the old subject name
-    const { error: topicsError } = await supabase
-      .from('topics')
+    const { error: topicsError } = await (supabase
+      .from('topics') as any)
       .update({
         subject: newSubject,
         color: newColor,
@@ -71,8 +71,8 @@ export async function PATCH(
         (s: string) => s === oldSubject ? newSubject : s
       )
 
-      await supabase
-        .from('settings')
+      await (supabase
+        .from('settings') as any)
         .update({
           last_used_subject: newSubject,
           recent_subjects: updatedRecentSubjects,
@@ -146,8 +146,8 @@ export async function DELETE(
         (s: string) => s !== subjectToDelete
       )
 
-      await supabase
-        .from('settings')
+      await (supabase
+        .from('settings') as any)
         .update({
           last_used_subject: settings.last_used_subject === subjectToDelete ? null : settings.last_used_subject,
           recent_subjects: updatedRecentSubjects,
