@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Topic } from '@/types';
 import { loadTopics, loadSubjects, addTopicAndUpdateStorage, completeTopicReview, deleteTopic, updateSubject, deleteSubject, StoredSubject } from '@/utils/storage';
 import AddTopicModal from '@/components/AddTopicModal';
@@ -130,20 +130,20 @@ export default function Home() {
     setCurrentDate(new Date());
   };
 
-  const handleKeyPress = (e: KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: KeyboardEvent) => {
     // Only allow shortcuts when user is authenticated and no modals are open
     if (user && (e.code === 'Space' || e.key === 'a') && !isAddModalOpen && !isSubjectsModalOpen && !isAuthModalOpen) {
       e.preventDefault();
       setIsAddModalOpen(true);
     }
-  };
+  }, [user, isAddModalOpen, isSubjectsModalOpen, isAuthModalOpen]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyPress);
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, [!!user, isAddModalOpen, isSubjectsModalOpen, isAuthModalOpen]);
+  }, [handleKeyPress]);
 
   if (authLoading || isLoading) {
     return (

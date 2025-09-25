@@ -57,11 +57,16 @@ function loadTopicsFromLocal(): Topic[] {
     if (!stored) return [];
 
     const parsed = JSON.parse(stored);
-    return parsed.map((topic: any) => ({
+    return parsed.map((topic: {
+      createdAt: string;
+      scheduledReviews: string[];
+      reviews: { date: string; [key: string]: unknown }[];
+      [key: string]: unknown;
+    }) => ({
       ...topic,
       createdAt: new Date(topic.createdAt),
       scheduledReviews: topic.scheduledReviews.map((date: string) => new Date(date)),
-      reviews: topic.reviews.map((review: any) => ({
+      reviews: topic.reviews.map((review: { date: string; [key: string]: unknown }) => ({
         ...review,
         date: new Date(review.date),
       })),
@@ -165,7 +170,7 @@ export async function addTopicAndUpdateStorage(
       s => s.subject.toLowerCase() === topic.subject.toLowerCase()
     );
 
-    let updatedSubjects = [...existingSubjects];
+    const updatedSubjects = [...existingSubjects];
     if (!subjectExists) {
       try {
         const newSubject = await apiClient.createSubject(topic.subject, topic.color);
@@ -209,7 +214,7 @@ export async function addTopicAndUpdateStorage(
 
     const updatedTopics = [...existingTopics, newTopic];
 
-    let updatedSubjects = [...existingSubjects];
+    const updatedSubjects = [...existingSubjects];
     const subjectExists = existingSubjects.find(
       s => s.subject.toLowerCase() === topic.subject.toLowerCase()
     );

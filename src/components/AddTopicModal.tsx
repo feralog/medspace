@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Topic } from '@/types';
 import { createTopic } from '@/utils/spaced-repetition';
 import { StoredSubject, loadSettings, saveSettings } from '@/utils/storage';
@@ -59,9 +59,9 @@ export default function AddTopicModal({ isOpen, onClose, onAddTopic, existingSub
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, subject, topic]);
+  }, [isOpen, onClose, handleSubmit]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     if (!subject.trim() || !topic.trim()) return;
 
     const newTopic = createTopic(
@@ -86,7 +86,7 @@ export default function AddTopicModal({ isOpen, onClose, onAddTopic, existingSub
     setSource('aula');
 
     onClose();
-  };
+  }, [subject, topic, selectedTags, source, existingSubjects, onAddTopic, onClose]);
 
   const handleTagToggle = (tag: string) => {
     setSelectedTags(prev =>

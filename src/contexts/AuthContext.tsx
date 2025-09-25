@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       return {};
-    } catch (error) {
+    } catch {
       return { error: 'An unexpected error occurred' };
     }
   };
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       return {};
-    } catch (error) {
+    } catch {
       return { error: 'An unexpected error occurred' };
     }
   };

@@ -37,7 +37,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           onClose();
         }
       }
-    } catch (error) {
+    } catch {
       setError('Ocorreu um erro inesperado');
     } finally {
       setLoading(false);

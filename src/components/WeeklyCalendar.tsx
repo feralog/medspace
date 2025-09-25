@@ -117,7 +117,7 @@ function DayColumn({
 }) {
   const dayTopics = getTopicsForDate(topics, date);
   const isToday = new Date().toDateString() === date.toDateString();
-  const isPast = date < new Date();
+  // const isPast = date < new Date();
 
   return (
     <div className={`flex-1 min-w-0 ${isToday ? 'bg-blue-50' : ''}`}>
