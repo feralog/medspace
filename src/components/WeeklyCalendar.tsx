@@ -52,8 +52,8 @@ function TopicItem({ topic, reviewIndex, onComplete, onDelete }: TopicItemProps)
             )}
           </div>
 
-          {/* Topic title - truncated for compact view */}
-          <p className="text-xs text-gray-900 font-medium truncate" title={topic.topic}>
+          {/* Topic title - wrap text to show full content */}
+          <p className="text-xs text-gray-900 font-medium leading-tight break-words" title={topic.topic}>
             {topic.topic}
           </p>
 
